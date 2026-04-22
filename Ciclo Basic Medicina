@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Malla Medicina</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  margin: 20px;
+}
+
+#progreso {
+  margin: 20px;
+  font-size: 22px;
+}
+
+.semestre {
+  margin: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 220px);
+  gap: 10px;
+  justify-content: center;
+}
+
+.materia {
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+/* estados */
+.disponible {
+  background: #9ca3af;
+  color: black;
+}
+
+.aprobada {
+  background: #22c55e;
+}
+
+.bloqueada {
+  background: #1f2937;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Malla Interactiva Medicina</h1>
+<div id="progreso">Progreso: 0%</div>
+
+<div id="contenedor"></div>
+
+<script>
+
+const materias = [
+
+/* SEMESTRE 1 */
+{n:"Promoción en Salud", id:"SAP1100", req:[], s:1},
+{n:"Microbiología", id:"MIP1330", req:[], s:1},
+{n:"Introducción a la Clínica", id:"MED3100", req:[], s:1},
+{n:"Lab Anatomía Humana I", id:"CMO3150", req:[], s:1},
+{n:"Anatomía Humana I", id:"CMO3140", req:[], s:1},
+{n:"Lab Histología", id:"CMO2330", req:[], s:1},
+{n:"Histología", id:"CMO2320", req:[], s:1},
+{n:"Embriología", id:"CMO1420", req:[], s:1},
+{n:"Lab Bioquímica I", id:"CFI2340", req:[], s:1},
+{n:"Bioquímica I", id:"CFI2330", req:[], s:1},
+{n:"Lab Genética", id:"CFI1240", req:[], s:1},
+{n:"Genética", id:"CFI1230", req:[], s:1},
+
+/* SEMESTRE 2 */
+{n:"Lab Salud Colectiva", id:"SAP3040", req:[], s:2},
+{n:"Salud Colectiva", id:"SAP2030", req:[], s:2},
+{n:"Parasitología", id:"MIP1240", req:["MIP1330","CMO3140","CMO3150"], s:2},
+{n:"Lab Semiología Médica", id:"MED4750", req:[], s:2},
+{n:"Semiología Médica", id:"MED4740", req:[], s:2},
+{n:"Psicología Médica", id:"MED1340", req:[], s:2},
+{n:"Lab Anatomía Humana II", id:"CMO3170", req:["CMO3140","CMO3150"], s:2},
+{n:"Anatomía Humana II", id:"CMO3160", req:["CMO3140","CMO3150"], s:2},
+{n:"Lab Fisiología Humana I", id:"CFI3120", req:[], s:2},
+{n:"Fisiología Humana I", id:"CFI3110", req:[], s:2},
+{n:"Lab Bioquímica II", id:"CFI2360", req:["CFI2330","CFI2340"], s:2},
+{n:"Bioquímica II", id:"CFI2350", req:["CFI2330","CFI2340"], s:2},
+
+/* SEMESTRE 3 */
+{n:"Fisiopatología I", id:"CFI1550", req:["CFI2350","CFI2360","CFI3110","CFI3120"], s:3},
+{n:"Gerencia y Políticas de Salud", id:"SAP2380", req:["SAP2030","SAP3040"], s:3},
+{n:"Lab Epidemiología", id:"SAP1170", req:["SAP2030","SAP3040"], s:3},
+{n:"Epidemiología", id:"SAP1160", req:["SAP2030","SAP3040"], s:3},
+{n:"Lab Semiología Quirúrgica", id:"MED3270", req:["MED4740","MED4750"], s:3},
+{n:"Semiología Quirúrgica", id:"MED3260", req:["MED4740","MED4750"], s:3},
+{n:"Lab Neuroanatomía", id:"CMO3190", req:["CMO3160","CMO3170"], s:3},
+{n:"Neuroanatomía", id:"CMO3180", req:["CMO3160","CMO3170"], s:3},
+{n:"Lab Anatomía Patológica I", id:"CMO2290", req:["CMO3160","CMO3170"], s:3},
+{n:"Anatomía Patológica I", id:"CMO2280", req:["CMO3160","CMO3170"], s:3},
+{n:"Lab Fisiología Humana II", id:"CFI3140", req:["CFI3110","CFI3120"], s:3},
+{n:"Fisiología Humana II", id:"CFI3130", req:["CFI3110","CFI3120"], s:3},
+
+/* SEMESTRE 4 */
+{n:"Evolución Sociohistórica Med", id:"SAP3350", req:["SAP1160","SAP1170"], s:4},
+{n:"Asignatura Optativa", id:"MEDZY0", req:[], s:4},
+{n:"Sexología Médica", id:"MED1360", req:["CMO3160","CMO3170","MED1340"], s:4},
+{n:"Lab Anatomía Patológica II", id:"CMO3220", req:["CMO2280","CMO2290"], s:4},
+{n:"Anatomía Patológica II", id:"CMO3210", req:["CMO2280","CMO2290"], s:4},
+{n:"Lab Farmacología", id:"CFI2470", req:["CFI2350","CFI2360","CFI3130","CFI3140"], s:4},
+{n:"Farmacología", id:"CFI2460", req:["CFI2350","CFI2360","CFI3130","CFI3140"], s:4},
+{n:"Lab Fisiopatología II", id:"CFI1570", req:["CFI1550"], s:4},
+{n:"Fisiopatología II", id:"CFI1560", req:["CFI1550"], s:4},
+{n:"Inmunología General", id:"BAN2180", req:["CFI2350","CFI2360","CMO3160","CMO3170"], s:4}
+
+];
+
+let estado = JSON.parse(localStorage.getItem("estado")) || {};
+
+function aprobado(id){
+  return estado[id] === true;
+}
+
+function desbloqueado(m){
+  return m.req.every(r => aprobado(r));
+}
+
+function toggle(id){
+  let m = materias.find(x=>x.id===id);
+  if(!desbloqueado(m)) return;
+
+  estado[id] = !estado[id];
+  localStorage.setItem("estado", JSON.stringify(estado));
+  render();
+}
+
+function progreso(){
+  let total = materias.length;
+  let aprobadas = Object.values(estado).filter(v=>v).length;
+  return Math.round((aprobadas/total)*100);
+}
+
+function render(){
+  let cont = document.getElementById("contenedor");
+  cont.innerHTML = "";
+
+  for(let s=1; s<=4; s++){
+    let divS = document.createElement("div");
+    divS.className = "semestre";
+    divS.innerHTML = "<h2>Semestre "+s+"</h2>";
+
+    let grid = document.createElement("div");
+    grid.className = "grid";
+
+    materias.filter(m=>m.s===s).forEach(m=>{
+      let div = document.createElement("div");
+      div.className = "materia";
+
+      if(aprobado(m.id)) div.classList.add("aprobada");
+      else if(!desbloqueado(m)) div.classList.add("bloqueada");
+      else div.classList.add("disponible");
+
+      div.innerText = m.n;
+      div.onclick = ()=>toggle(m.id);
+
+      grid.appendChild(div);
+    });
+
+    divS.appendChild(grid);
+    cont.appendChild(divS);
+  }
+
+  document.getElementById("progreso").innerText =
+    "Progreso: " + progreso() + "%";
+}
+
+render();
+
+</script>
+
+</body>
+</html>
