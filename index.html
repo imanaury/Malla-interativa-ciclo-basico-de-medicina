@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Malla Medicina</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#e5e7eb;
+  text-align:center;
+}
+
+h1{color:#2b4c7e;}
+h2{color:#3b82f6;}
+.sub{color:#6b7280;}
+
+.semestre{
+  background:#f3f4f6;
+  margin:20px auto;
+  padding:20px;
+  border-radius:20px;
+  width:90%;
+  max-width:500px;
+  box-shadow:0 10px 20px rgba(0,0,0,0.1);
+}
+
+.materia{
+  margin:8px 0;
+  padding:12px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.aprobada{
+  background:linear-gradient(90deg,#16a34a,#86efac);
+  color:white;
+}
+
+.disponible{
+  background:#d1d5db;
+}
+
+.bloqueada{
+  background:#9ca3af;
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+#progreso{
+  margin:10px;
+  font-size:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Premédica - Medicina</h1>
+<h2>MANAURI AYBAR</h2>
+<div class="sub">UASD</div>
+
+<div id="progreso">Progreso: 0%</div>
+<div id="contenedor"></div>
+
+<script>
+
+const materias = [
+
+/* ===== PREMEDICA ===== */
+{n:"Biología Básica",id:"BIO0170",req:[],s:"P1"},
+{n:"Lab Biología Básica",id:"BIO0180",req:[],s:"P1"},
+{n:"Orientación Institucional",id:"DOP1000",req:[],s:"P1"},
+{n:"Filosofía",id:"FIL0110",req:[],s:"P1"},
+{n:"Lengua Española I",id:"LET0110",req:[],s:"P1"},
+{n:"Matemática Básica",id:"MAT0140",req:[],s:"P1"},
+{n:"Química Básica",id:"QUI0140",req:[],s:"P1"},
+{n:"Ciencias Sociales",id:"SOC0100",req:[],s:"P1"},
+{n:"Física Básica",id:"FIS0140",req:[],s:"P1"},
+
+{n:"Biofísica",id:"CFI3150",req:["FIS0140","BIO0170","BIO0180"],s:"P2"},
+{n:"Lab Biofísica",id:"CFI3160",req:["FIS0140","BIO0170","BIO0180"],s:"P2"},
+{n:"Educación Física",id:"EFS0120",req:[],s:"P2"},
+{n:"Historia Dominicana",id:"HIS0110",req:[],s:"P2"},
+{n:"Lengua Española II",id:"LET0120",req:["LET0110"],s:"P2"},
+{n:"Psicología",id:"OSI1510",req:[],s:"P2"},
+{n:"Química Orgánica",id:"QUI1220",req:["QUI0140"],s:"P2"},
+{n:"Vida en Comunidad",id:"SOC1470",req:["SOC0100"],s:"P2"},
+
+{n:"Estructuras Anatómicas",id:"CMO1020",req:["BIO0170","BIO0180"],s:"P3"},
+{n:"Lab Estructuras Anatómicas",id:"CMO1030",req:["BIO0170","BIO0180"],s:"P3"},
+{n:"Bases Biométrico",id:"SAP2090",req:["MAT0140"],s:"P3"},
+{n:"Informática",id:"INF1030",req:["MAT0140"],s:"P3"},
+{n:"Inglés Técnico I",id:"IDI1200",req:["LET0120"],s:"P3"},
+{n:"Historia Cultura",id:"HIS2370",req:["HIS0110"],s:"P3"},
+{n:"Antropología",id:"HIS1700",req:["SOC0100"],s:"P3"},
+{n:"Ética General",id:"FIL1270",req:["FIL0110"],s:"P3"},
+
+{n:"Bases Histológicas",id:"CMO0300",req:["BIO0170","BIO0180"],s:"P4"},
+{n:"Lab Histológicas",id:"CMO0340",req:["BIO0170","BIO0180"],s:"P4"},
+{n:"Fisiología Celular",id:"CFI0160",req:["QUI1220","BIO0170","BIO0180"],s:"P4"},
+{n:"Tecnología en Salud",id:"SAP2080",req:["INF1030"],s:"P4"},
+{n:"Inglés Técnico II",id:"IDI1270",req:["IDI1200"],s:"P4"},
+{n:"Actividad Física",id:"SAP1150",req:["CMO1020","CMO1030"],s:"P4"},
+{n:"Metodología Investigación",id:"SAP1050",req:["FIL0110","SOC0100","MAT0140"],s:"P4"},
+{n:"Salud y Conducta Humana",id:"MED0330",req:["SOC0100"],s:"P4"},
+
+/* ===== MEDICINA ===== */
+
+/* SEM 1 */
+{n:"Promoción en Salud",id:"SAP1100",req:["CMO0300"],s:"M1"},
+{n:"Microbiología",id:"MIP1330",req:["BIO0170"],s:"M1"},
+{n:"Introducción Clínica",id:"MED3100",req:[],s:"M1"},
+{n:"Lab Anatomía I",id:"CMO3150",req:["CMO1020"],s:"M1"},
+{n:"Anatomía I",id:"CMO3140",req:["CMO1020"],s:"M1"},
+{n:"Lab Histología",id:"CMO2330",req:["CMO0300"],s:"M1"},
+{n:"Histología",id:"CMO2320",req:["CMO0300"],s:"M1"},
+{n:"Embriología",id:"CMO1420",req:["BIO0170"],s:"M1"},
+{n:"Lab Bioquímica I",id:"CFI2340",req:["QUI1220"],s:"M1"},
+{n:"Bioquímica I",id:"CFI2330",req:["QUI1220"],s:"M1"},
+{n:"Lab Genética",id:"CFI1240",req:["BIO0170"],s:"M1"},
+{n:"Genética",id:"CFI1230",req:["BIO0170"],s:"M1"},
+
+/* SEM 2 */
+{n:"Salud Colectiva",id:"SAP2030",req:["SAP1100"],s:"M2"},
+{n:"Lab Salud Colectiva",id:"SAP3040",req:["SAP1100"],s:"M2"},
+{n:"Parasitología",id:"MIP1240",req:["MIP1330","CMO3140","CMO3150"],s:"M2"},
+{n:"Semiología Médica",id:"MED4740",req:["MED3100"],s:"M2"},
+{n:"Lab Semiología",id:"MED4750",req:["MED3100"],s:"M2"},
+{n:"Psicología Médica",id:"MED1340",req:[],s:"M2"},
+{n:"Anatomía II",id:"CMO3160",req:["CMO3140","CMO3150"],s:"M2"},
+{n:"Lab Anatomía II",id:"CMO3170",req:["CMO3140","CMO3150"],s:"M2"},
+{n:"Fisiología I",id:"CFI3110",req:["CFI2330"],s:"M2"},
+{n:"Lab Fisiología I",id:"CFI3120",req:["CFI2330"],s:"M2"},
+{n:"Bioquímica II",id:"CFI2350",req:["CFI2330","CFI2340"],s:"M2"},
+{n:"Lab Bioquímica II",id:"CFI2360",req:["CFI2330","CFI2340"],s:"M2"},
+
+/* SEM 3 */
+{n:"Fisiopatología I",id:"CFI1550",req:["CFI2350","CFI3110"],s:"M3"},
+{n:"Gerencia en Salud",id:"SAP2380",req:["SAP2030"],s:"M3"},
+{n:"Epidemiología",id:"SAP1160",req:["SAP2030"],s:"M3"},
+{n:"Lab Epidemiología",id:"SAP1170",req:["SAP2030"],s:"M3"},
+{n:"Semiología Quirúrgica",id:"MED3260",req:["MED4740"],s:"M3"},
+{n:"Lab Semiología Quirúrgica",id:"MED3270",req:["MED4740"],s:"M3"},
+{n:"Neuroanatomía",id:"CMO3180",req:["CMO3160"],s:"M3"},
+{n:"Lab Neuroanatomía",id:"CMO3190",req:["CMO3160"],s:"M3"},
+{n:"Anatomía Patológica I",id:"CMO2280",req:["CMO3160"],s:"M3"},
+{n:"Lab Anat Patológica I",id:"CMO2290",req:["CMO3160"],s:"M3"},
+{n:"Fisiología II",id:"CFI3130",req:["CFI3110"],s:"M3"},
+{n:"Lab Fisiología II",id:"CFI3140",req:["CFI3110"],s:"M3"},
+
+/* SEM 4 */
+{n:"Evolución Médica",id:"SAP3350",req:["SAP1160"],s:"M4"},
+{n:"Sexología",id:"MED1360",req:["CMO3160"],s:"M4"},
+{n:"Anatomía Patológica II",id:"CMO3210",req:["CMO2280"],s:"M4"},
+{n:"Lab Anat Patológica II",id:"CMO3220",req:["CMO2280"],s:"M4"},
+{n:"Farmacología",id:"CFI2460",req:["CFI2350"],s:"M4"},
+{n:"Lab Farmacología",id:"CFI2470",req:["CFI2350"],s:"M4"},
+{n:"Fisiopatología II",id:"CFI1560",req:["CFI1550"],s:"M4"},
+{n:"Lab Fisiopatología II",id:"CFI1570",req:["CFI1550"],s:"M4"},
+{n:"Inmunología",id:"BAN2180",req:["CFI2350","CMO3160"],s:"M4"}
+
+];
+
+let estado = JSON.parse(localStorage.getItem("estado")) || {};
+
+function aprobado(id){return estado[id]===true;}
+function desbloqueado(m){return m.req.every(r=>aprobado(r));}
+
+function toggle(id){
+ let m=materias.find(x=>x.id===id);
+ if(!desbloqueado(m))return;
+ estado[id]=!estado[id];
+ localStorage.setItem("estado",JSON.stringify(estado));
+ render();
+}
+
+function progreso(){
+ let total=materias.length;
+ let aprobadas=Object.values(estado).filter(v=>v).length;
+ return Math.round((aprobadas/total)*100);
+}
+
+function render(){
+ let cont=document.getElementById("contenedor");
+ cont.innerHTML="";
+
+ let orden=["P1","P2","P3","P4","M1","M2","M3","M4"];
+
+ orden.forEach(s=>{
+   let div=document.createElement("div");
+   div.className="semestre";
+   div.innerHTML="<h3>"+s+"</h3>";
+
+   materias.filter(m=>m.s===s).forEach(m=>{
+     let mat=document.createElement("div");
+     mat.className="materia";
+
+     if(aprobado(m.id)) mat.classList.add("aprobada");
+     else if(!desbloqueado(m)) mat.classList.add("bloqueada");
+     else mat.classList.add("disponible");
+
+     mat.innerText=m.n;
+     mat.onclick=()=>toggle(m.id);
+
+     div.appendChild(mat);
+   });
+
+   cont.appendChild(div);
+ });
+
+ document.getElementById("progreso").innerText="Progreso: "+progreso()+"%";
+}
+
+render();
+
+</script>
+
+</body>
+</html>
